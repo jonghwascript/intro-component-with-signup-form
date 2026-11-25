@@ -13,6 +13,7 @@
   <section aria-label="Free trial sign up">        가입 영역
     <p><strong>Try it free 7 days</strong> then $20/mo. thereafter</p>
     <form id="signup-form" novalidate>
+      <div id="form-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>   화면 낭독기 전용 오류 요약 / 성공 메시지
       (필드 4개 — 아래 표)
       <button type="submit">Claim your free trial</button>   ← CSS로 대문자 표시
       <p>By clicking the button, you are agreeing to our <a href="#">Terms and Services</a></p>
@@ -49,15 +50,17 @@
 | 포커스 | `:focus-visible` | 테두리 Purple 700 |
 | 오류 | `aria-invalid="true"`, `aria-describedby="{id}-error"`, 오류 `<p>`에 문구 | 테두리 Red 400, 입력 오른쪽 안 `icon-error.svg`, 플레이스홀더 숨김, 입력값 글자 Red 400(이메일), 아래 오른쪽 정렬 11px Medium Italic Red 400 문구 |
 | 버튼 hover | `:hover` | 배경 Green 400 → Green 300, `cursor: pointer` |
+| 오류 요약 | `#form-status`에 오류 개수 문구 + 필드별 오류 문구 목록(텍스트만, 포커스 받는 요소 없음) | 화면에 보이지 않음(시안 유지) |
+| 성공 | `#form-status`에 성공 문구 | 화면에 보이지 않음(시안 유지) |
 | 링크 | `a:hover`, `a:focus-visible` | 밑줄 또는 불투명도 변화 + 포커스 테두리 |
 
 ## 동작 계약 (`main.js`)
 
 1. `submit` 이벤트에서 기본 동작을 막고 4개 값을 모아 `SignupValidation.validateSignup()` 호출.
 2. 결과에 따라 각 필드에 오류를 적용하거나 해제(문구, `aria-invalid`, `aria-describedby`).
-3. 무효가 있으면 첫 무효 필드에 `focus()`.
-4. 모두 유효하면 `form.reset()` 후 모든 오류 표시 제거. 이후 첫 필드로 포커스.
-5. 연속 제출에도 같은 결과가 나와야 한다(상태를 누적하지 않고 매번 전체를 다시 그림).
+3. 무효가 있으면 `#form-status`에 오류 요약(개수 + 필드별 오류 문구 목록)을 그리고, 첫 무효 필드에 `focus()`.
+4. 모두 유효하면 `form.reset()` 후 모든 오류 표시 제거, `#form-status`에 "Thanks! Your free trial has been claimed." 표시. 이후 첫 필드로 포커스.
+5. 연속 제출에도 같은 결과가 나와야 한다(상태를 누적하지 않고 매번 필드와 `#form-status`를 비운 뒤 전체를 다시 그림).
 
 ## 레이아웃 계약
 

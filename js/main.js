@@ -19,6 +19,37 @@
     input.removeAttribute('aria-describedby');
   }
 
+  var SUCCESS_MESSAGE = 'Thanks! Your free trial has been claimed.';
+
+  // #form-status is visually hidden (the design shows no summary box), so it
+  // holds plain text only: no links, nothing that can take focus unseen.
+  function clearStatus(statusEl) {
+    statusEl.textContent = '';
+  }
+
+  function showErrorSummary(statusEl, invalidFields) {
+    var title = document.createElement('p');
+    title.textContent = invalidFields.length === 1
+      ? 'There is 1 error in the form:'
+      : 'There are ' + invalidFields.length + ' errors in the form:';
+
+    var list = document.createElement('ul');
+    invalidFields.forEach(function (item) {
+      var li = document.createElement('li');
+      li.textContent = item.message;
+      list.appendChild(li);
+    });
+
+    statusEl.appendChild(title);
+    statusEl.appendChild(list);
+  }
+
+  function showSuccess(statusEl) {
+    var message = document.createElement('p');
+    message.textContent = SUCCESS_MESSAGE;
+    statusEl.appendChild(message);
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
 
@@ -34,25 +65,30 @@
     });
 
     var result = validation.validateSignup(values);
-    var firstInvalid = null;
+    var invalidFields = [];
+    var statusEl = document.getElementById('form-status');
 
-    // Re-render every field on each submit so repeated clicks never stack state.
+    // Re-render every field and the status on each submit so repeated clicks
+    // never stack state. Clearing first lets the live region re-announce.
+    clearStatus(statusEl);
     fields.forEach(function (input) {
       var error = result.errors[input.name];
       if (error) {
         showFieldError(input, error.message);
-        if (!firstInvalid) firstInvalid = input;
+        invalidFields.push({ input: input, message: error.message });
       } else {
         clearFieldError(input);
       }
     });
 
-    if (firstInvalid) {
-      firstInvalid.focus();
+    if (invalidFields.length) {
+      showErrorSummary(statusEl, invalidFields);
+      invalidFields[0].input.focus();
       return;
     }
 
     form.reset();
+    showSuccess(statusEl);
     fields[0].focus();
   }
 
