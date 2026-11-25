@@ -1,108 +1,147 @@
-# Frontend Mentor - Intro component with sign up form
+# Frontend Mentor - Intro component with sign up form solution
 
-![Design preview for the Intro component with sign up form coding challenge](preview.jpg)
+This is a solution to the [Intro component with sign up form challenge on Frontend Mentor](https://www.frontendmentor.io/challenges/intro-component-with-signup-form-5cf91bd49edda32581d28fd1). Frontend Mentor challenges help you improve your coding skills by building realistic projects.
 
-## Welcome! 👋
+## Table of contents
 
-Thanks for checking out this front-end coding challenge.
+- [Overview](#overview)
+  - [The challenge](#the-challenge)
+  - [Screenshot](#screenshot)
+  - [Links](#links)
+- [My process](#my-process)
+  - [Built with](#built-with)
+  - [What I learned](#what-i-learned)
+  - [Continued development](#continued-development)
+  - [Useful resources](#useful-resources)
+  - [AI Collaboration](#ai-collaboration)
+- [Author](#author)
 
-[Frontend Mentor](https://www.frontendmentor.io) challenges help you improve your coding skills by building realistic projects.
+## Overview
 
-**To do this challenge, you need a basic understanding of HTML, CSS and JavaScript.**
+### The challenge
 
-## The challenge
-
-Your challenge is to build out this introductory component and get it looking as close to the design as possible.
-
-You can use any tools you like to help you complete the challenge. So if you've got something you'd like to practice, feel free to give it a go.
-
-Your users should be able to:
+Users are able to:
 
 - View the optimal layout for the site depending on their device's screen size
-- See hover states for all interactive elements on the page
+  (one column below 1024px, two columns from 1024px up)
+- See hover and focus states for all interactive elements on the page
 - Receive an error message when the `form` is submitted if:
-  - Any `input` field is empty. The message for this error should say _"[Field Name] cannot be empty"_
-  - The email address is not formatted correctly (i.e. a correct email address should have this structure: `name@host.tld`). The message for this error should say _"Looks like this is not an email"_
+  - Any `input` field is empty. The message says *"[Field Name] cannot be empty"*
+  - The email address is not formatted correctly (`name@host.tld`). The message
+    says *"Looks like this is not an email"*
 
-### Want some support on the challenge? 
+### Screenshot
 
-[Join our community](https://www.frontendmentor.io/community) and ask questions in the **#help** channel.
+![Desktop view of the intro component with sign up form](./screenshot.jpg)
 
-## Where to find everything
+### Links
 
-Your task is to build out the project to the designs inside the `/design` folder. You will find both a mobile and a desktop version of the design.
+- Challenge URL: [Frontend Mentor challenge](https://www.frontendmentor.io/challenges/intro-component-with-signup-form-5cf91bd49edda32581d28fd1)
+- Solution URL: [Repository](https://github.com/jonghwascript/intro-component-with-signup-form)
+- Live Site URL: [Live site](https://jonghwascript.github.io/intro-component-with-signup-form/)
 
-The designs are in JPG static format. Using JPGs will mean that you'll need to use your best judgment for styles such as `font-size`, `padding` and `margin`.
+## My process
 
-If you would like the Figma design file to inspect the design in more detail, you can [subscribe as a PRO member](https://www.frontendmentor.io/pro).
+### Built with
 
-You will find all the required assets in the `/images` folder. The assets are already optimized.
+- Semantic HTML5 markup (`main`, `section` landmarks, one `h1`)
+- CSS custom properties as design tokens (colors, spacing, type presets)
+- Flexbox and CSS Grid
+- Mobile-first workflow
+- Vanilla JavaScript, no dependencies
+- [`node:test`](https://nodejs.org/api/test.html) - unit tests for the
+  validation logic, with zero installed packages
+- [GitHub Actions](https://docs.github.com/actions) - deploys only the site
+  files to GitHub Pages on every push to `main`
+- [Spec Kit](https://github.com/github/spec-kit) - spec, plan and task docs
+  under [`specs/`](./specs/001-intro-signup-form)
 
-There is also a `style-guide.md` file containing the information you'll need, such as color palette and fonts.
+### What I learned
 
-## Using AI coding assistants
+- **Keep validation pure so it can be tested without a browser.**
+  `js/validation.js` never touches the DOM. It exports through CommonJS when
+  `module` exists (Node tests) and through `window.SignupValidation`
+  otherwise, so the same file runs in both places without a build step.
 
-We've included two files to help you if you're using AI coding assistants (like Claude, GitHub Copilot, Cursor, etc.) while working on this challenge:
+  ```js
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = api;
+  } else {
+    root.SignupValidation = api;
+  }
+  ```
 
-- `AGENTS.md` - Contains detailed instructions for AI assistants on how to help you with this challenge. It's tailored to this challenge's difficulty level, so the AI will provide guidance appropriate to your learning stage—offering more support for beginner challenges and encouraging more independence on advanced ones.
-- `CLAUDE.md` - A pointer file that directs Claude-based tools to the AGENTS.md instructions.
+- **An error message has to be wired to its input, not just placed next to
+  it.** On each submit, every field is re-rendered: invalid ones get
+  `aria-invalid="true"` and `aria-describedby` pointing at their message, and
+  focus moves to the first invalid field.
 
-**How to use them:** You don't need to do anything! These files are automatically detected by most AI coding tools. The AI will read them and adjust its behavior to be a better learning partner—guiding you toward solutions rather than just giving you the answers.
+  ```js
+  input.setAttribute('aria-invalid', 'true');
+  input.setAttribute('aria-describedby', errorEl.id);
+  ```
 
-**Note:** These files are designed to help you *learn*, not to do the work for you. The AI is instructed to ask questions, give hints, and explain concepts rather than writing complete solutions.
+- **The error styling can hang off the ARIA state.** Using
+  `[aria-invalid="true"]` as the CSS hook means the visual state and what a
+  screen reader hears can never drift apart.
 
-## Building your project
+  ```css
+  .field__input[aria-invalid="true"] {
+    border: 2px solid var(--color-red-400);
+    background-image: url("../images/icon-error.svg");
+  }
+  ```
 
-Feel free to use any workflow that you feel comfortable with. Below is a suggested process, but do not feel like you need to follow these steps:
+- **A screen-reader summary doesn't have to change the design.** The mockup
+  shows no error summary or success message, so a visually hidden
+  `role="status"` live region announces the error count and each message, or a
+  success message after a valid submit. Because it is invisible, it holds
+  plain text only: a link inside it would take focus where nobody can see it.
 
-1. Initialize your project as a public repository on [GitHub](https://github.com/). Creating a repo will make it easier to share your code with the community if you need help. If you're not sure how to do this, [have a read-through of this Try Git resource](https://try.github.io/).
-2. Configure your repository to publish your code to a web address. This will also be useful if you need some help during a challenge as you can share the URL for your project with your repo URL. There are a number of ways to do this, and we provide some recommendations below.
-3. Look through the designs to start planning out how you'll tackle the project. This step is crucial to help you think ahead for CSS classes to create reusable styles.
-4. Before adding any styles, structure your content with HTML. Writing your HTML first can help focus your attention on creating well-structured content.
-5. Write out the base styles for your project, including general content styles, such as `font-family` and `font-size`.
-6. Start adding styles to the top of the page and work down. Only move on to the next section once you're happy you've completed the area you're working on.
+- **Checking against a checklist finds things testing by eye misses.** Going
+  through [The A11Y Project checklist](https://www.a11yproject.com/checklist/)
+  turned up missing success feedback and several colour contrast failures
+  that looked fine on screen.
 
-## Deploying your project
+### Continued development
 
-As mentioned above, there are many ways to host your project for free. Our recommended hosts are:
+- **Colour contrast.** Several design colours fail WCAG AA: white text on the
+  red background (2.54:1), white text on the green button (2.06:1), the terms
+  text (1.94:1) and the input border (1.35:1). Fixing them means darker shades
+  than the mockup, so it is a design decision still to make.
+- **Visible labels.** Labels are visually hidden and the placeholder acts as
+  the label, so a field shows no name once it has a value. Visible labels
+  would fix this but also change the design.
+- **Terms link.** "Terms and Services" still points to `#` because there is no
+  real page to link to.
 
-- [GitHub Pages](https://pages.github.com/)
-- [Vercel](https://vercel.com/)
-- [Netlify](https://www.netlify.com/)
+### Useful resources
 
-You can host your site using one of these solutions or any of our other trusted providers. [Read more about our recommended and trusted hosts](https://www.frontendmentor.io/guides/hosting-your-solution).
+- [The A11Y Project - Checklist](https://www.a11yproject.com/checklist/) - The
+  checklist I used to audit the page.
+- [WCAG 2.2 Understanding docs](https://www.w3.org/WAI/WCAG22/Understanding/) -
+  For what each success criterion actually requires.
+- [MDN - ARIA live regions](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions) -
+  How `role="status"` and `aria-live` are announced.
+- [GitHub Pages - Using custom workflows](https://docs.github.com/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) -
+  Deploying with GitHub Actions instead of a branch.
 
-## Create a custom `README.md`
+### AI Collaboration
 
-We strongly recommend overwriting this `README.md` with a custom one. We've provided a template inside the [`README-template.md`](./README-template.md) file in this starter code.
+I worked with [Claude Code](https://claude.com/claude-code) during this
+project. It helped me:
 
-The template provides a guide for what to add. A custom `README` will help you explain your project and reflect on your learnings. Please feel free to edit our template as much as you like.
+- Set up the GitHub Pages deployment workflow
+- Split the work into Conventional Commits
+- Audit the page against The A11Y Project checklist and add the
+  screen-reader status messages
+- Check the repository for sensitive information before publishing
 
-Once you've added your information to the template, delete this file and rename the `README-template.md` file to `README.md`. That will make it show up as your repository's README file.
+I reviewed each change. One change got rolled back: the first accessibility
+fix showed a visible error summary, which no longer matched the design, so the
+summary was made visible only to screen readers.
 
-## Submitting your solution
+## Author
 
-Submit your solution on the platform for the rest of the community to see. Follow our ["Complete guide to submitting solutions"](https://www.frontendmentor.io/guides/how-to-submit-solutions) for tips on how to do this.
-
-Remember, if you're looking for feedback on your solution, be sure to ask questions when submitting it. The more specific and detailed you are with your questions, the higher the chance you'll get valuable feedback from the community.
-
-## Sharing your solution
-
-There are multiple places you can share your solution:
-
-1. Share your solution page in the **#finished-projects** channel of the [community](https://www.frontendmentor.io/community).
-2. Share on [X (formerly Twitter)](https://x.com/frontendmentor) and mention **@frontendmentor**, including the repo and live URLs in your post. We'd love to take a look at what you've built and help share it around.
-3. Share your solution on [LinkedIn](https://www.linkedin.com/company/frontend-mentor/).
-4. Blog about your experience building your project. Writing about your workflow, technical choices, and talking through your code is a brilliant way to reinforce what you've learned. Great platforms to write on are [dev.to](https://dev.to/), [Hashnode](https://hashnode.com/), and [CodeNewbie](https://community.codenewbie.org/).
-
-We provide templates to help you share your solution once you've submitted it on the platform. Please do edit them and include specific questions when you're looking for feedback.
-
-The more specific you are with your questions the more likely it is that another member of the community will give you feedback.
-
-## Got feedback for us?
-
-We love receiving feedback! We're always looking to improve our challenges and our platform. So if you have anything you'd like to mention, please email hi[at]frontendmentor[dot]io.
-
-This challenge is completely free. Please share it with anyone who will find it useful for practice.
-
-**Have fun building!** 🚀
+- GitHub - [@jonghwascript](https://github.com/jonghwascript)
+- Frontend Mentor - [@jonghwascript](https://www.frontendmentor.io/profile/jonghwascript)
